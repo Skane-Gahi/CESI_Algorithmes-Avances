@@ -11,11 +11,12 @@ def cal_pop_fitness(equation_inputs, pop):
     The fitness function caulcuates the sum of products between each input and its corresponding weight.
     """
     fitness = numpy.sum(pop*equation_inputs, axis=1)
-    print(fitness)
     return fitness
 
 def select_mating_pool(pop, fitness, num_parents):
-    # Selecting the best individuals in the current generation as parents for producing the offspring of the next generation.
+    """
+    Selecting the best individuals in the current generation as parents for producing the offspring of the next generation.
+    """
     parents = numpy.empty((num_parents, pop.shape[1]))
     for parent_num in range(num_parents):
         max_fitness_idx = numpy.where(fitness == numpy.max(fitness))
