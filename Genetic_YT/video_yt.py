@@ -50,15 +50,15 @@ def crossover(pop):
 
 #   MUTATION ##################################################
 def mutation(pop):
-    for i in pop:
-        
-        gene_to_mutate = math.floor(random.random()*len(i))
-        if (i[gene_to_mutate] == 0) :
-            i[gene_to_mutate] = 1
-        else :
-            i[gene_to_mutate] = 0
+  for i in pop:
+      
+      gene_to_mutate = math.floor(random.random()*len(i))
+      if (i[gene_to_mutate] == 0) :
+          i[gene_to_mutate] = 1
+      else :
+          i[gene_to_mutate] = 0
 
-    return pop
+  return pop
  
 #   NEW_POPULATION ############################################
 def NewPopulation(n_pop):
@@ -75,36 +75,3 @@ def NewPopulation(n_pop):
 
     return pop
 
-#   MAIN ######################################################
-population = []
-max_iter = 10
-iter = 0
-
-def MainLoop(population):
-    if population == []:
-        pop = generate_population()
-        print("START : ", pop)
-    else:
-        pop = population
-
-    sortedPop = sorting(pop)
-    # print(sortedPop)
-
-    crossoveredPop = crossover(sortedPop)
-    # print(crossoveredPop)
-
-    mutationnedPop = mutation(crossoveredPop)
-    # print(mutationnedPop)
-
-    finalPop = NewPopulation(mutationnedPop)
-    print(finalPop)
-    return finalPop
-
-while iter < max_iter :
-    if population != []:
-        if get_sum(population[0]) == 8:
-            break
-        
-    population = MainLoop(population)
-    print('ITERATION : ', str(iter))
-    iter += 1
