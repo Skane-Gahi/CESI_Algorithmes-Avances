@@ -1,8 +1,8 @@
 import numpy as np
 
 # Inputs data of our problem
-n = 5 # number of cities
-k = 2 # number of trucks
+n = 100 # number of cities
+k = 5 # number of trucks
 
 N, K = [i for i in range(1, n+1)], [i for i in range(1, k+1)] # sets of cities and trucks
 # set of nodes (cities + warehouse)
@@ -63,30 +63,36 @@ def crossover(parents:np.ndarray, offspringSize) -> any:
     return offspring
 
 def mutation(offsprings) -> any:
-    pass
+    # Mutation changes a single gene in each offspring randomly.
+    for idx in range(offsprings.shape[0]):
+        # The random value to be added to the gene.
+        n = offsprings[0][0].shape[0]
+        randomGene = np.random.randint(0, 2, (n,n))
+        randomTruck = np.random.randint(0, offsprings.shape[0]-1)
+        offsprings[idx, randomTruck] =  randomGene
+    return offsprings
 
 # number of generations aka. number of iterations
-num_generations = 2
+num_generations = 100
 for generation in range(num_generations):
     print("Generation : ", generation)
     # Measing the fitness of each chromosome in the population.
     fitness = getFitness(popu, A)
-    print(fitness)
 
     # Selecting the best parents in the population for mating.
     parents = naturalSelect(popu, fitness, numParents)
-    print(parents)
+    # print(parents.tolist())
 
     # Generating next generation using crossover.
     offsprings = crossover(parents, offspringSize=(popuSize - parents.shape[0], k, n, n))
-    print(offsprings)
+    # print(offsprings.tolist())
 
     # Adding some variations to the offsrping using mutation.
     mutated_offsprings = mutation(offsprings)
 
-    # # Creating the new population based on the parents and offspring.
-    # popu[0:parents.shape[0], :] = parents
-    # popu[parents.shape[0]:, :] = mutated_offsprings
+    # Creating the new population based on the parents and offspring.
+    popu[0:parents.shape[0], :] = parents
+    popu[parents.shape[0]:, :] = mutated_offsprings
 
-    # # The best result in the current iteration.
-    # print("Best result : ", np.max(np.sum(popu*A, axis=1)))
+    # The best result in the current iteration.
+    print("Best result : ", np.max(np.sum(popu*A, axis=1)))
