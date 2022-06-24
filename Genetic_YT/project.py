@@ -1,16 +1,16 @@
 import random, math, numpy
-from scipy import rand
 
 #   PARAMETERS ###############################################
-k = 2
-v = 2
-nbrIndividus = 2
+k = 5
+v = 30
+nbrIndividus = 10
+max_iter = 100
 
 def matrice_poids(v):
     arr = numpy.empty((v, v), dtype='int32')
     for i in range(0,v):
       for j in range(0,v):
-        arr[i][j] = random.randint(1, 1000) 
+        arr[i][j] = random.randint(1, 100) 
     
     return arr
 
@@ -30,12 +30,12 @@ def matrice_camion(v):
   
   # Contrainte de partir et revenir au depot (ici en {0,0})
   arr[0][0] = 1
-  return arr
+  return arr.copy()
 
 def generate_individual(k, v, matricePoids):
   path = []
   for i in range(0,k):
-    path.append(matrice_camion(v)*matricePoids)
+    path.append(matrice_camion(v)*matricePoids.copy())
   
   cases_manquantes = []
   for i in range(0,v):
@@ -50,9 +50,8 @@ def generate_individual(k, v, matricePoids):
             z=0
 
   for case in cases_manquantes:
-    print(case)
-    # kRandom = random.randint(0, k)
-    # path[kRandom][case[0]]
+    kRandom = random.randint(0, k-1)
+    path[kRandom][case[0]][case[1]] = matricePoids[case[0]][case[1]].copy()
   return path
 
 def generate_population(matricePoids):
@@ -62,11 +61,12 @@ def generate_population(matricePoids):
   for i in range(0,nbrIndividus): # Normalement 8
     # Randomly generate one individual with random genes
     pop.append(generate_individual(k, v, matricePoids))
-  
   return pop
 
 # print(matrice_camion(2))
-
+# matricePoids = matrice_poids(v)
+# a = generate_population(matricePoids)
+# print(a)
 
 
 #   FITNESS ##################################################
@@ -88,22 +88,24 @@ def sorting(pop):
 
 #   CROSSOVER ################################################
 def sub_cross_over(i1, i2):
+  
   individual = []
   for i in range(len(i1)):
     if i < (len(i1)/2):
-      individual.append(i1[i])
+      individual.append(i1[i].copy())
     else:
-      individual.append(i2[i])
+      individual.append(i2[i].copy())
   return individual
 
 def crossover(pop):
+  
   n_pop = []
   for i in range(len(pop)):
     if i == 0:
       n_pop.append(pop[i])
     else:
       n_pop.append(sub_cross_over(pop[0], pop[i]))
-
+  
   return n_pop
 
 # a = generate_population()
@@ -119,20 +121,19 @@ def crossover(pop):
 
 #   MUTATION ##################################################
 def mutation(pop, matricePoids):
-  for i in pop:
-
-    # matrice random ou on mutationne
-    matrice_random = random.randint(0, len(i)-1)
+  # Sauf le 1er individu --> start à 1
+  for i in range(1, len(pop)):
+    matrice_random = random.randint(0, len(pop[i])-1)
 
     # gene_to_mutate
-    x = math.floor(random.random()*len(i[matrice_random]))
-    y = math.floor(random.random()*len(i[matrice_random]))
-  
-    if (i[matrice_random][x][y] == 0) :
-      i[matrice_random][x][y] = matricePoids[x][y]
+    x = math.floor(random.random()*len(pop[0][0]))
+    y = math.floor(random.random()*len(pop[0][0]))
+ 
+    if (pop[i][matrice_random][x][y] == 0) :
+      pop[i][matrice_random][x][y] = matricePoids[x][y].copy()
     else :
-      i[matrice_random][x][y] = 0
-
+      pop[i][matrice_random][x][y] = 0
+  
   return pop
 
 # matricePoids = matrice_poids(v)
@@ -156,18 +157,25 @@ def NewPopulation(n_pop, matricePoids):
 
   return pop
 
-a = generate_population(matricePoids)
-print("Géneration de base : ")
-print(a)
-b = sorting(a)
-print("Classement : ")
-print(b)
-c = crossover(b)
-print("Crossover : ")
-print(c)
-d = mutation(c, matricePoids)
-print("Mutation : ")
-print(d)
-e = NewPopulation(d, matricePoids)
-print("Final : ")
-print(e)
+
+# Loop ########################################################
+def Loop(pop):
+  if pop != []:
+    a = pop
+  else:
+    a = generate_population(matricePoids)
+  b = sorting(a)
+  # print(b[0])
+  # print("Classement : ")
+  # print(b)
+  c = crossover(b)
+  # print("Crossover : ")
+  # print(c)
+  d = mutation(c, matricePoids)
+  # print(c[0])
+  # print("Mutation : ")
+  # print(d)
+  e = NewPopulation(d, matricePoids)
+  # print("Final : ")
+  # print(e)
+  return e
