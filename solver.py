@@ -1,52 +1,98 @@
 import numpy as np
 
 # Inputs data of our problem
-n = 100 # number of cities
-k = 5 # number of trucks
+n = 5 # number of cities
+v = n+1 # number of nodes
+k = 2 # number of trucks
 
 N, K = [i for i in range(1, n+1)], [i for i in range(1, k+1)] # sets of cities and trucks
 # set of nodes (cities + warehouse)
 V = [0] + N 
 # set of weighted arcs 
-A = np.random.randint(low=0, high=1000+1, size=(n,n)) 
+A = np.random.randint(low=0, high=5+1, size=(v,v)) 
 
 # trucks capacity
 C = pow(5,3) 
 
-# Creating the initial population
-popuSize = 6
-popu = np.random.randint(low=0, high=1+1, size=(popuSize,k,n,n))
-numParents:int = np.uint8(popuSize/2)
+def generatePopu(indivNb:int, trucksNb:int, nodesNb:int) -> np.ndarray:
+    """
+    Generate initial population with constraints respected
+    """
+    popu = np.empty((indivNb, trucksNb, nodesNb, nodesNb), dtype=np.uint0)
+    for individual in range(indivNb):
+        for truck in range(trucksNb):
+            # generate random index for departure and back to depository
+            departure = np.random.randint(low=1, high=nodesNb)
+            back = np.random.randint(low=1, high=nodesNb)
+            # filling first row
+            popu[individual, truck, 0, :] = np.array([0 if i != departure else 1 for i in range(nodesNb)])
+            # filling first column
+            popu[individual, truck, :, 0] = np.array([0 if i != back else 1 for i in range(nodesNb)])
 
-print(A)
+        # generate the rest of the matrix randomly
+        for i in range(1, nodesNb):
+            for j in range(1, nodesNb):
+                    rndTruck = np.random.randint(low=0, high=trucksNb)
+                    iterCounter = 0
+                    delivered = False
+                    while iterCounter <= trucksNb:
+                        if i != j:
+                            if np.count_nonzero(popu[individual, rndTruck, i, :] == 1) == 1 or np.count_nonzero(popu[individual, rndTruck, :, j] == 1) == 1:
+                                popu[individual, rndTruck, i, j] = 0
+                            elif delivered is True:
+                                popu[individual, rndTruck, i, j] = 0
+                            else:
+                                popu[individual, rndTruck, i, j] = 1
+                                delivered = True
+                        else:
+                            popu[individual, rndTruck, i, j] = 0
+                        rndTruck = (rndTruck+1)%trucksNb
+                        iterCounter +=1
+    return popu
+
+# Creating the initial population
+popuSize = 3
+popu = generatePopu(popuSize, k, v)
+numParents = np.uint8(popuSize/2)
+
+print(popu)
 
 def getFitness(popu:list, arcs:np.ndarray) -> int:
     """ 
     Calculating the fitness value of each solution in the current population.\n
     The fitness function caulcuates the sum of products between each input and its corresponding weight.
     """
-    allFitness = list()
-    for genome in popu:
+    # create fitness list
+    allFitness = []
+    # iterating over individual in population
+    for genome in range(popu.shape[0]):
+        # set the fitness to 0
         fitness = 0
-        for gene in genome:
-            fitness += (np.sum(gene*arcs))
+        # iterating over genes in each individual
+        for gene in range(popu[genome].shape[0]):
+            # incrementing fitness by summing the multiplication of the gene by distances matrix
+            fitness += (np.sum(popu[genome, gene, :]*arcs))
+        # append result to list of fitness
         allFitness.append(fitness)
     return allFitness
 
-def naturalSelect(popu:np.ndarray, fitness:list, num_parents:int) -> any:
+def naturalSelect(popu:np.ndarray, fitness:list, num_parents:int) -> np.ndarray:
     """
     Selecting the best individuals in the current generation as parents for producing the offspring of the next generation.
     """
+    # creating empty matric to store parents
     parents = np.empty((num_parents, popu.shape[1], popu.shape[2], popu.shape[3]), dtype=np.uint0)
-    for parent_idx in range(num_parents):
-        max_fitness_idx = np.where(fitness == np.max(fitness))
-        max_fitness_idx = max_fitness_idx[0][0]
-        parents[parent_idx, :] = popu[max_fitness_idx, :]
-        fitness[max_fitness_idx] = -1
-
+    # iterating over rows in parents matrix
+    for parentIdx in range(num_parents):
+        # get the index of smallest fitness value
+        minFitnessIdx = fitness.index(min([i for i in fitness if i > 0]))
+        # set the parent equal to the actual best individual
+        parents[parentIdx, :] = popu[minFitnessIdx, :]
+        # set current min fitness to -1 in order to ignore it next time
+        fitness[minFitnessIdx] = -1
     return parents
 
-def crossover(parents:np.ndarray, offspringSize) -> any:
+def crossover(parents:np.ndarray, offspringSize:tuple) -> np.ndarray:
     offspring = np.empty(offspringSize, dtype=np.uint0)
     # The point at which crossover takes place between two parents. Usually it is at the center.
     crossoverPoint = np.uint8(offspringSize[1]/2)
@@ -57,12 +103,12 @@ def crossover(parents:np.ndarray, offspringSize) -> any:
         # Index of the second parent to mate.
         parent2_idx = (k+1)%parents.shape[0]
         # The new offspring will have its first half of its genes taken from the first parent.
-        offspring[k, 0:crossoverPoint] = parents[parent1_idx, 0:crossoverPoint]
+        offspring[k, 0:crossoverPoint] = parents[parent1_idx, 0:crossoverPoint].copy()
         # The new offspring will have its second half of its genes taken from the second parent.
-        offspring[k, crossoverPoint:] = parents[parent2_idx, crossoverPoint:]
+        offspring[k, crossoverPoint:] = parents[parent2_idx, crossoverPoint:].copy()
     return offspring
 
-def mutation(offsprings) -> any:
+def mutation(offsprings:np.ndarray) -> any:
     # Mutation changes a single gene in each offspring randomly.
     for idx in range(offsprings.shape[0]):
         # The random value to be added to the gene.
@@ -73,19 +119,17 @@ def mutation(offsprings) -> any:
     return offsprings
 
 # number of generations aka. number of iterations
-num_generations = 100
-for generation in range(num_generations):
+numGenerations = 5
+for generation in range(1, numGenerations+1):
     print("Generation : ", generation)
     # Measing the fitness of each chromosome in the population.
     fitness = getFitness(popu, A)
 
     # Selecting the best parents in the population for mating.
     parents = naturalSelect(popu, fitness, numParents)
-    # print(parents.tolist())
 
     # Generating next generation using crossover.
-    offsprings = crossover(parents, offspringSize=(popuSize - parents.shape[0], k, n, n))
-    # print(offsprings.tolist())
+    offsprings = crossover(parents, offspringSize=(popuSize - parents.shape[0], k, v, v))
 
     # Adding some variations to the offsrping using mutation.
     mutated_offsprings = mutation(offsprings)
@@ -95,4 +139,10 @@ for generation in range(num_generations):
     popu[parents.shape[0]:, :] = mutated_offsprings
 
     # The best result in the current iteration.
-    print("Best result : ", np.max(np.sum(popu*A, axis=1)))
+    # currentFitness = getFitness(popu=popu, arcs=A)
+    # print("All fitnesses : ", currentFitness)
+    # print("Best result : ", min(currentFitness))
+
+# print(popu[currentFitness.index(min(currentFitness)), :])
+
+# print(generatePopu(popuSize, k, v))
