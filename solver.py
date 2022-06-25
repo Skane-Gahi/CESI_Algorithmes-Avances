@@ -14,40 +14,35 @@ A = np.random.randint(low=0, high=5+1, size=(v,v))
 # trucks capacity
 C = pow(5,3) 
 
-def generatePopu(indivNb:int, trucksNb:int, nodesNb:int) -> np.ndarray:
+def generatePopu(indivNb:int, trucksNb:int, nodesNb:int) -> any:
     """
     Generate initial population with constraints respected
     """
-    popu = np.empty((indivNb, trucksNb, nodesNb, nodesNb), dtype=np.uint0)
-    for individual in range(indivNb):
-        for truck in range(trucksNb):
-            # generate random index for departure and back to depository
-            departure = np.random.randint(low=1, high=nodesNb)
-            back = np.random.randint(low=1, high=nodesNb)
-            # filling first row
-            popu[individual, truck, 0, :] = np.array([0 if i != departure else 1 for i in range(nodesNb)])
-            # filling first column
-            popu[individual, truck, :, 0] = np.array([0 if i != back else 1 for i in range(nodesNb)])
+    # generate an initial population full of zero
+    popu = np.zeros((indivNb, trucksNb, nodesNb, nodesNb), dtype=np.uint0)
 
-        # generate the rest of the matrix randomly
-        for i in range(1, nodesNb):
-            for j in range(1, nodesNb):
-                    rndTruck = np.random.randint(low=0, high=trucksNb)
-                    iterCounter = 0
-                    delivered = False
-                    while iterCounter <= trucksNb:
-                        if i != j:
-                            if np.count_nonzero(popu[individual, rndTruck, i, :] == 1) == 1 or np.count_nonzero(popu[individual, rndTruck, :, j] == 1) == 1:
-                                popu[individual, rndTruck, i, j] = 0
-                            elif delivered is True:
-                                popu[individual, rndTruck, i, j] = 0
-                            else:
-                                popu[individual, rndTruck, i, j] = 1
-                                delivered = True
-                        else:
-                            popu[individual, rndTruck, i, j] = 0
-                        rndTruck = (rndTruck+1)%trucksNb
-                        iterCounter +=1
+    # list to store trucks circuits
+    circuits = [ [] for _ in range(trucksNb)]
+    # iterating for each individual to generate
+    for individual in range(indivNb):
+        # iterate over cities to be delivered
+        for city in range(1, nodesNb):
+            # choose a random truck to deliver
+            rndTruck = np.random.randint(low=0, high=trucksNb, size=1)[0]
+            circuits[rndTruck].append(city)
+        # iterate over trucks circuits
+        for idx, truck in enumerate(circuits):
+            # if the truck has been given at least one city
+            if len(truck) > 0:
+                # had departure and arrival to depository
+                truck.append(0)
+                truck.insert(0, 0)
+            # iterating over deliveries of trucks
+            for delivery in range(len(truck)-1):
+                # set the route in population 
+                popu[individual, idx, truck[delivery], truck[delivery+1]] = 1
+        # reset circuits for next individual generation
+        circuits = [ [] for _ in range(trucksNb)]
     return popu
 
 # Creating the initial population
