@@ -5,6 +5,7 @@ k = 5
 v = 5
 nbrIndividus = 10
 max_iter = 100
+nb_colis = 50
 random.seed(3)
 
 #   TRAFFIC ##################################################
@@ -23,7 +24,42 @@ def matrice_poids(v, periode):
   return arr
 
 matricePoids = matrice_poids(v, MIDI)
-print(matricePoids)
+
+# COLIS ######################################################
+# AU pif :
+VOLUME_COLIS = [1, 3, 5, 8]
+CAPACITE_CAMION = 20
+
+def TableauColis(nb_colis):
+  tableau = {}
+  tableau[0] = random.randint(0, int(nb_colis/2))
+  tableau[1] = random.randint(0, int(nb_colis-tableau[0]))
+  tableau[2] = random.randint(0, int(nb_colis-(tableau[0]+tableau[1])))
+  tableau[3] = nb_colis-(tableau[0]+tableau[1]+tableau[2])
+  return tableau
+
+tableau_colis = TableauColis(nb_colis)
+print(tableau_colis)
+
+def NombreCamion(tableau_colis):
+  nb_camion = 1
+  capacite = 0
+  listeCapacite = []
+
+  for i in range(3, -1, -1):
+    for colis in range(tableau_colis[i]):
+      if capacite + VOLUME_COLIS[i] < CAPACITE_CAMION:
+        capacite += VOLUME_COLIS[i]
+      else:
+        nb_camion += 1
+        listeCapacite.append(capacite)
+        capacite = 0 + VOLUME_COLIS[i]
+
+  listeCapacite.append(capacite)
+  print(nb_camion)
+  print(listeCapacite)
+
+NombreCamion(tableau_colis)
 
 #   GENERATION ###############################################
 #   population : [individu{0,k} [chemins{0,v+1}] ]
