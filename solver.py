@@ -1,7 +1,7 @@
 import numpy as np
 
 # Inputs data of our problem
-n = 5 # number of cities
+n = 10 # number of cities
 v = n+1 # number of nodes
 k = 2 # number of trucks
 
@@ -14,7 +14,7 @@ A = np.random.randint(low=0, high=5+1, size=(v,v))
 # trucks capacity
 C = pow(5,3) 
 
-def generatePopu(indivNb:int, trucksNb:int, nodesNb:int) -> any:
+def generatePopu(indivNb:int, trucksNb:int, nodesNb:int) -> np.ndarray:
     """
     Generate initial population with constraints respected
     """
@@ -46,11 +46,9 @@ def generatePopu(indivNb:int, trucksNb:int, nodesNb:int) -> any:
     return popu
 
 # Creating the initial population
-popuSize = 3
+popuSize = 6
 popu = generatePopu(popuSize, k, v)
 numParents = np.uint8(popuSize/2)
-
-print(popu)
 
 def getFitness(popu:list, arcs:np.ndarray) -> int:
     """ 
@@ -88,6 +86,9 @@ def naturalSelect(popu:np.ndarray, fitness:list, num_parents:int) -> np.ndarray:
     return parents
 
 def crossover(parents:np.ndarray, offspringSize:tuple) -> np.ndarray:
+    """
+    Crossover between a set of given parents and return resulted children
+    """
     offspring = np.empty(offspringSize, dtype=np.uint0)
     # The point at which crossover takes place between two parents. Usually it is at the center.
     crossoverPoint = np.uint8(offspringSize[1]/2)
@@ -103,7 +104,35 @@ def crossover(parents:np.ndarray, offspringSize:tuple) -> np.ndarray:
         offspring[k, crossoverPoint:] = parents[parent2_idx, crossoverPoint:].copy()
     return offspring
 
-def mutation(offsprings:np.ndarray) -> any:
+def checkCity(popu:np.ndarray) -> list:
+    """
+    Check any individual of a given population if any city has not been delivered
+    """
+    # list to store not delivered city numbers
+    notDelivered = [ [] for _ in range(popu.shape[0])]
+
+    # iterating over individuals in population
+    for idx, individual in enumerate(popu):
+        # iterating over lines (corresponding to cities)
+        for city in range(individual[0].shape[0]):
+            # set a counter to 0
+            counter = 0
+            # iterating over trucks
+            for truck in range(individual.shape[0]):
+                # count occurences of 1 in truck circuit for current city
+                counter += np.count_nonzero(individual[truck, city, :] == 1)
+            # if no trucks has delivered current city
+            if counter < 1:
+                # add it to the list for current individual
+                notDelivered[idx].append(city)
+    # return not delivered cities
+    return notDelivered
+
+def mutation(offsprings:np.ndarray) -> np.ndarray:
+    """
+    Mutation of given offsprings
+    """
+    print(checkCity(offsprings))
     # Mutation changes a single gene in each offspring randomly.
     for idx in range(offsprings.shape[0]):
         # The random value to be added to the gene.
@@ -114,9 +143,8 @@ def mutation(offsprings:np.ndarray) -> any:
     return offsprings
 
 # number of generations aka. number of iterations
-numGenerations = 5
+numGenerations = 10
 for generation in range(1, numGenerations+1):
-    print("Generation : ", generation)
     # Measing the fitness of each chromosome in the population.
     fitness = getFitness(popu, A)
 
@@ -134,9 +162,9 @@ for generation in range(1, numGenerations+1):
     popu[parents.shape[0]:, :] = mutated_offsprings
 
     # The best result in the current iteration.
-    # currentFitness = getFitness(popu=popu, arcs=A)
-    # print("All fitnesses : ", currentFitness)
-    # print("Best result : ", min(currentFitness))
+    currentFitness = getFitness(popu=popu, arcs=A)
+    print("All fitnesses : ", currentFitness)
+    print("Best result : ", min(currentFitness))
 
 # print(popu[currentFitness.index(min(currentFitness)), :])
 
