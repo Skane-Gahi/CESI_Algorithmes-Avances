@@ -2,19 +2,27 @@ import random, math, numpy
 
 #   PARAMETERS ###############################################
 k = 5
-v = 30
+v = 5
 nbrIndividus = 10
 max_iter = 100
+random.seed(3)
 
-def matrice_poids(v):
-    arr = numpy.empty((v, v), dtype='int32')
-    for i in range(0,v):
-      for j in range(0,v):
-        arr[i][j] = random.randint(1, 100) 
-    
-    return arr
+#   TRAFFIC ##################################################
+MATIN = 1.75
+MIDI = 1
+APRES_MIDI = 1.5
+NUIT = 0.5
 
-matricePoids = matrice_poids(v)
+
+def matrice_poids(v, periode):
+  arr = numpy.empty((v, v), dtype='int32')
+  for i in range(0,v):
+    for j in range(0,v):
+      arr[i][j] = round(random.randint(1, 100) * periode)
+  
+  return arr
+
+matricePoids = matrice_poids(v, MIDI)
 
 #   GENERATION ###############################################
 #   population : [individu{0,k} [chemins{0,v+1}] ]
@@ -26,10 +34,22 @@ def matrice_camion(v):
   arr = numpy.empty((v, v), dtype='int32')
   for i in range(0,v):
     for j in range(0,v):
-      arr[i][j] = random.randint(0, 1) 
+      if i != j:
+        arr[i][j] = random.randint(0, 1) 
+      else:
+        arr[i][j] = 0 # Contrainte de pas boucler sur la même ville (diagonales à 0)
   
-  # Contrainte de partir et revenir au depot (ici en {0,0})
-  arr[0][0] = 1
+  # Contrainte de partir et revenir au depot {0,0}
+  indexLigne = random.randint(1, v)
+  indexColonne = random.randint(1, v) 
+  arr[indexLigne][0] = 1
+  if indexColonne != indexLigne:
+    arr[0][indexColonne] = 1
+  else:
+    try:
+      arr[0][indexColonne+1] = 1
+    except:
+      arr[0][indexColonne-1] = 1
   return arr.copy()
 
 def generate_individual(k, v, matricePoids):
