@@ -31,5 +31,5 @@ def generatePopu(indivNb:int, trucksNb:int, nodesNb:int) -> any:
         circuits = [ [] for _ in range(trucksNb)]
     return popu
 
-generatePopu(3, 2, 4)
+print(generatePopu(3, 2, 4))
     
