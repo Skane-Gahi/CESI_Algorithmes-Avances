@@ -8,21 +8,22 @@ max_iter = 100
 random.seed(3)
 
 #   TRAFFIC ##################################################
-MATIN = 1.75
-MIDI = 1
-APRES_MIDI = 1.5
-NUIT = 0.5
+MATIN = [1.7, 2.2]
+MIDI = [0.8, 1.2]
+APRES_MIDI = [1.25, 1.7]
+NUIT = [0.6, 1]
 
 
 def matrice_poids(v, periode):
   arr = numpy.empty((v, v), dtype='int32')
   for i in range(0,v):
     for j in range(0,v):
-      arr[i][j] = round(random.randint(1, 100) * periode)
+      arr[i][j] = round(random.randint(1, 100) * random.uniform(periode[0], periode[1]))
   
   return arr
 
 matricePoids = matrice_poids(v, MIDI)
+print(matricePoids)
 
 #   GENERATION ###############################################
 #   population : [individu{0,k} [chemins{0,v+1}] ]
