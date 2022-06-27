@@ -6,8 +6,8 @@ import random
 V = 8
 INDIVIDUAL = 8
 
-MAX_ITER = 20
-NB_COLIS = 10
+MAX_ITER = 100
+NB_COLIS = 30
 
 #   TRAFFIC ##################################################
 MATIN = [1.7, 2.2]
