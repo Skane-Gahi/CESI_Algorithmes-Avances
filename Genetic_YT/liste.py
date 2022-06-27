@@ -3,11 +3,11 @@ import random
 
 
 #   PARAMETERS ###############################################
-V = 8
+V = 30
 INDIVIDUAL = 8
 
 MAX_ITER = 100
-NB_COLIS = 30
+NB_COLIS = 10
 
 #   TRAFFIC ##################################################
 MATIN = [1.7, 2.2]
@@ -27,34 +27,50 @@ def TableauColis(nb_colis):
   tableau[3] = nb_colis-(tableau[0]+tableau[1]+tableau[2])
   return tableau
 
+def sub_nombreCamion(tab_colis, i, capacite):
+    for _ in range(tab_colis[i]):
+        if capacite + VOLUME_COLIS[i] < CAPACITE_CAMION and tab_colis[i] > 0:
+            capacite += VOLUME_COLIS[i]
+            tab_colis[i] -= 1
+        elif i > 0:
+            for j in range(i-1, -1, -1):
+                for _ in range(tab_colis[j]):
+                    if capacite + VOLUME_COLIS[j] < CAPACITE_CAMION and tab_colis[j] > 0:
+                        capacite += VOLUME_COLIS[j]
+                        tab_colis[j] -= 1
+
+    for j in range(i-1, -1, -1):
+                for _ in range(tab_colis[j]):
+                    if capacite + VOLUME_COLIS[j] < CAPACITE_CAMION and tab_colis[j] > 0:
+                        capacite += VOLUME_COLIS[j]
+                        tab_colis[j] -= 1
+
+    return capacite
+
 def NombreCamion(tableau_colis):
     tab_colis = tableau_colis.copy()
     nb_camion = 1
     capacite = 0
     listeCapacite = []
+    
+    while any(x != 0 for x in tab_colis.values()):
 
-    for i in range(3, -1, -1):
-        for _ in range(tab_colis[i]):
-            if capacite + VOLUME_COLIS[i] < CAPACITE_CAMION and tab_colis[i] > 0:
-                capacite += VOLUME_COLIS[i]
-                tab_colis[i] -= 1
-            elif i > 0:
-                for j in range(i-1, -1, -1):
-                    for _ in range(tab_colis[j]):
-                        if capacite + VOLUME_COLIS[j] < CAPACITE_CAMION and tab_colis[j] > 0:
-                            capacite += VOLUME_COLIS[j]
-                            tab_colis[j] -= 1
-            else:
-                nb_camion += 1
-                listeCapacite.append(capacite)
-                capacite = 0 + VOLUME_COLIS[i]
-                tab_colis[i] -= 1
-                i = 3
-            
+        i = 3
+        capacite = sub_nombreCamion(tab_colis, i, capacite)
+        
+        listeCapacite.append(capacite)
+        capacite = 0
+        nb_camion += 1
+        i = 3
+                
     listeCapacite.append(capacite)
+    print(tab_colis)
+    print(listeCapacite)
     return nb_camion
 
 tableau_colis = TableauColis(NB_COLIS)
+print(tableau_colis)
+
 k = NombreCamion(tableau_colis)
 
 #   MATRICE DES POIDS ########################################
@@ -72,26 +88,24 @@ def matrice_poids(v, periode):
 MATRICE_POIDS = matrice_poids(V, MIDI)
 
 # Generation #################################################
-def Population(nb_node, nb_individual):
+def Population():
     pop = []
-    for _ in range(0, nb_individual):
+    for _ in range(0, INDIVIDUAL):
         # randomList = [0]
-        randomList = random.sample(range(1, nb_node), nb_node-1)
+        randomList = random.sample(range(1, V), V-1)
         # randomList.extend([0])
-        truckIdx = [random.randrange(1, V-1) for _ in range(k-1)]
-        while truckIdx in pop:
-            truckIdx = [(random.randrange(1, V-1) for _ in range(k-1))]
+        truckIdx = [random.randrange(1, V-1) for _ in range(k)]
         pop.append([randomList, truckIdx])
     
     return pop
 
 #   Only for new gen ########################################
-def individu(nb_node):
+def individu():
     
     # randomList = [0]
-    randomList = random.sample(range(1, nb_node), nb_node-1)
+    randomList = random.sample(range(1, V), V-1)
     # randomList.extend([0])
-    truckIdx = [random.randrange(1, V-1) for _ in range(k-1)]
+    truckIdx = [random.randrange(1, V-1) for _ in range(k)]
 
     return [randomList, truckIdx]
 
@@ -179,7 +193,7 @@ def NewPopulation(pop):
         if i < (len(pop)/2):
             n_pop.append(pop[i])
         else:
-            n_pop.append(individu(V))
+            n_pop.append(individu())
 
     return n_pop
 
@@ -187,7 +201,7 @@ def NewPopulation(pop):
 # Loop ########################################################
 def Loop(pop):
     if pop == []:
-        pop = Population(V, INDIVIDUAL)
+        pop = Population()
     else:
         pop = Fitness(pop)
         pop = Crossover(pop)
@@ -197,8 +211,9 @@ def Loop(pop):
     return pop
 
 # print(MATRICE_POIDS)
-# pop = Population(V, INDIVIDUAL)
-# print('Default : ', pop, '\n')
+# pop = Population()
+# print(k)
+# print('Default : ', pop[0], '\n')
 # pop = Fitness(pop)
 # print('Fitness : ', pop, '\n')
 # pop = Crossover(pop)

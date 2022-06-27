@@ -31,7 +31,8 @@ if population != []:
         tmpList.append(tmpBestScore)
         if tmpBestScore < bestScore:
             bestScore = tmpBestScore
+
     print(tmpList)
     print("Best Score : ", str(bestScore))
-    # print(population)
+    print(population[0])
             
