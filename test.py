@@ -1,63 +1,32 @@
 import numpy as np
+import pulp
 
-def generatePopu(indivNb:int, trucksNb:int, nodesNb:int) -> any:
-    """
-    Generate initial population with constraints respected
-    """
-    # generate an initial population full of zero
-    popu = np.zeros((indivNb, trucksNb, nodesNb, nodesNb), dtype=np.uint0)
+n_point = 10 # number of nodes
+k = 3
+distances = np.random.randint(low=0, high=1000, size=(n_point, n_point), dtype=np.uint)
 
-    # list to store trucks circuits
-    circuits = [ [] for _ in range(trucksNb)]
-    # iterating for each individual to generate
-    for individual in range(indivNb):
-        # iterate over cities to be delivered
-        for city in range(1, nodesNb):
-            # choose a random truck to deliver
-            rndTruck = np.random.randint(low=0, high=trucksNb, size=1)[0]
-            circuits[rndTruck].append(city)
-        # iterate over trucks circuits
-        for idx, truck in enumerate(circuits):
-            # if the truck has been given at least one city
-            if len(truck) > 0:
-                # had departure and arrival to depository
-                truck.append(0)
-                truck.insert(0, 0)
-            # iterating over deliveries of trucks
-            for delivery in range(len(truck)-1):
-                # set the route in population 
-                popu[individual, idx, truck[delivery], truck[delivery+1]] = 1
-        # reset circuits for next individual generation
-        circuits = [ [] for _ in range(trucksNb)]
-    return popu
+# set problem
+problem = pulp.LpProblem('cvrp_mip', pulp.LpMinimize)
 
-# print(generatePopu(3, 2, 4))
+# set variables
+x = pulp.LpVariable.dicts('x', ((i, j) for i in range(n_point) for j in range(n_point)), lowBound=0, upBound=1, cat='Binary')
 
-def matrice_camion(v, trucksNb):
-  
-    # list to store trucks circuits
-    circuits = [ [] for _ in range(trucksNb)]
-    individual = []
+# set objective function
+problem += pulp.lpSum([distances[i][j] * x[i, j] for i in range(n_point) for j in range(n_point)])
 
-    for city in range(1, v):
-        # choose a random truck to deliver
-        rndTruck = np.random.randint(low=0, high=trucksNb, size=1)[0]
-        circuits[rndTruck].append(city)
+# set constrains
+for i in range(n_point):
+    problem += x[i, i] == 0
     
-    # iterate over trucks circuits
-    for truck in circuits:
-        arr = np.zeros((v, v), dtype='int32')
-        # if the truck has been given at least one city
-        if len(truck) > 0:
-            # had departure and arrival to depository
-            truck.append(0)
-            truck.insert(0, 0)
-        # iterating over deliveries of trucks
-        print(truck)
-        for delivery in range(len(truck)-1):
-            # set the route in population 
-            arr[truck[delivery]][truck[delivery+1]] = 1
-        individual.append(arr.copy())
-    return individual
+for i in range(1, n_point):
+    problem += pulp.lpSum(x[j, i] for j in range(n_point)) == 1
+    problem += pulp.lpSum(x[i, j] for j in range(n_point)) == 1
+        
+problem += pulp.lpSum(x[i, 0] for i in range(n_point)) == k
+problem += pulp.lpSum(x[0, i] for i in range(n_point)) == k
 
-print(matrice_camion(4, 2))
+# solve problem
+status = problem.solve()
+
+# output status, value of objective function
+status, pulp.LpStatus[status], pulp.value(problem.objective)
