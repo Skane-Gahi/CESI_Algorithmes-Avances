@@ -1,4 +1,4 @@
-from project import *
+from liste import *
 
 #   MAIN #############################################################
 population = []
@@ -6,7 +6,7 @@ iter = 0
 bestScore = 9999999
 
 
-while iter < max_iter :
+while iter < MAX_ITER :
     print('ITERATION : ', str(iter))
 
     if population != []:
@@ -35,25 +35,3 @@ if population != []:
     print("Best Score : ", str(bestScore))
     # print(population)
             
-
-#   YT ########################################
-
-# def MainLoopYT(population):
-#     if population == []:
-#         pop = generate_population()
-#         print("START : ", pop)
-#     else:
-#         pop = population
-
-#     sortedPop = sorting(pop)
-#     # print(sortedPop)
-
-#     crossoveredPop = crossover(sortedPop)
-#     # print(crossoveredPop)
-
-#     mutationnedPop = mutation(crossoveredPop)
-#     # print(mutationnedPop)
-
-#     finalPop = NewPopulation(mutationnedPop)
-#     # print(finalPop)
-#     return finalPop

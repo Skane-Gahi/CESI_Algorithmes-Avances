@@ -1,10 +1,11 @@
-import random, math, numpy
+import random, math
+import numpy as np
 
 #   PARAMETERS ###############################################
-k = 5
-v = 5
-nbrIndividus = 10
-max_iter = 100
+k = 2
+v = 4
+nbrIndividus = 8
+max_iter = 20
 nb_colis = 50
 random.seed(3)
 
@@ -16,10 +17,13 @@ NUIT = [0.6, 1]
 
 
 def matrice_poids(v, periode):
-  arr = numpy.empty((v, v), dtype='int32')
+  arr = np.empty((v, v), dtype='int32')
   for i in range(0,v):
     for j in range(0,v):
-      arr[i][j] = round(random.randint(1, 100) * random.uniform(periode[0], periode[1]))
+      if j != i:
+        arr[i][j] = round(random.randint(1, 100) * random.uniform(periode[0], periode[1]))
+      else:
+        arr[i][j] = 0
   
   return arr
 
@@ -38,8 +42,8 @@ def TableauColis(nb_colis):
   tableau[3] = nb_colis-(tableau[0]+tableau[1]+tableau[2])
   return tableau
 
-tableau_colis = TableauColis(nb_colis)
-print(tableau_colis)
+# tableau_colis = TableauColis(nb_colis)
+# print(tableau_colis)
 
 def NombreCamion(tableau_colis):
   nb_camion = 1
@@ -59,57 +63,39 @@ def NombreCamion(tableau_colis):
   print(nb_camion)
   print(listeCapacite)
 
-NombreCamion(tableau_colis)
+# NombreCamion(tableau_colis)
 
 #   GENERATION ###############################################
 #   population : [individu{0,k} [chemins{0,v+1}] ]
 
 
 
-def matrice_camion(v):
+def generate_individual(trucksNb, k, matricePoids):
   
-  arr = numpy.empty((v, v), dtype='int32')
-  for i in range(0,v):
-    for j in range(0,v):
-      if i != j:
-        arr[i][j] = random.randint(0, 1) 
-      else:
-        arr[i][j] = 0 # Contrainte de pas boucler sur la même ville (diagonales à 0)
-  
-  # Contrainte de partir et revenir au depot {0,0}
-  indexLigne = random.randint(1, v)
-  indexColonne = random.randint(1, v) 
-  arr[indexLigne][0] = 1
-  if indexColonne != indexLigne:
-    arr[0][indexColonne] = 1
-  else:
-    try:
-      arr[0][indexColonne+1] = 1
-    except:
-      arr[0][indexColonne-1] = 1
-  return arr.copy()
+  # list to store trucks circuits
+  circuits = [ [] for _ in range(trucksNb)]
+  individual = []
 
-def generate_individual(k, v, matricePoids):
-  path = []
-  for i in range(0,k):
-    path.append(matrice_camion(v)*matricePoids.copy())
+  for city in range(1, v):
+    # choose a random truck to deliver
+    rndTruck = np.random.randint(low=0, high=trucksNb, size=1)[0]
+    circuits[rndTruck].append(city)
   
-  cases_manquantes = []
-  for i in range(0,v):
-    for j in range(0,v): 
-      for m in path:
-        if m[i][j] == 0:
-          cases_manquantes.append([i, j])
-        else:
-          try:
-            cases_manquantes.remove([i, j])
-          except:
-            z=0
-
-  for case in cases_manquantes:
-    kRandom = random.randint(0, k-1)
-    path[kRandom][case[0]][case[1]] = matricePoids[case[0]][case[1]].copy()
-  return path
+  # iterate over trucks circuits
+  for truck in circuits:
+    arr = np.zeros((v, v), dtype='int32')
+    # if the truck has been given at least one city
+    if len(truck) > 0:
+        # had departure and arrival to depository
+        truck.append(0)
+        truck.insert(0, 0)
+    # iterating over deliveries of trucks
+    for delivery in range(len(truck)-1):
+        # set the route in population 
+        arr[truck[delivery]][truck[delivery+1]] = 1
+    individual.append(arr.copy()*matricePoids.copy())
+  return individual
+  
 
 def generate_population(matricePoids):
   # Init empty population
@@ -120,8 +106,8 @@ def generate_population(matricePoids):
     pop.append(generate_individual(k, v, matricePoids))
   return pop
 
-# print(matrice_camion(2))
-# matricePoids = matrice_poids(v)
+
+# matricePoids = matrice_poids(v, MIDI)
 # a = generate_population(matricePoids)
 # print(a)
 
