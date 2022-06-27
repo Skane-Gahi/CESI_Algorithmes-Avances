@@ -7,7 +7,7 @@ V = 8
 INDIVIDUAL = 8
 
 MAX_ITER = 20
-NB_COLIS = 50
+NB_COLIS = 10
 
 #   TRAFFIC ##################################################
 MATIN = [1.7, 2.2]
@@ -28,28 +28,36 @@ def TableauColis(nb_colis):
   return tableau
 
 def NombreCamion(tableau_colis):
-  nb_camion = 1
-  capacite = 0
-  listeCapacite = []
+    tab_colis = tableau_colis.copy()
+    nb_camion = 1
+    capacite = 0
+    listeCapacite = []
 
-  for i in range(3, -1, -1):
-    for colis in range(tableau_colis[i]):
-      if capacite + VOLUME_COLIS[i] < CAPACITE_CAMION:
-        capacite += VOLUME_COLIS[i]
-      else:
-        nb_camion += 1
-        listeCapacite.append(capacite)
-        capacite = 0 + VOLUME_COLIS[i]
-
-  listeCapacite.append(capacite)
-  print(nb_camion)
-  print(listeCapacite)
-  return nb_camion
+    for i in range(3, -1, -1):
+        for _ in range(tab_colis[i]):
+            if capacite + VOLUME_COLIS[i] < CAPACITE_CAMION and tab_colis[i] > 0:
+                capacite += VOLUME_COLIS[i]
+                tab_colis[i] -= 1
+            elif i > 0:
+                for j in range(i-1, -1, -1):
+                    for _ in range(tab_colis[j]):
+                        if capacite + VOLUME_COLIS[j] < CAPACITE_CAMION and tab_colis[j] > 0:
+                            capacite += VOLUME_COLIS[j]
+                            tab_colis[j] -= 1
+            else:
+                nb_camion += 1
+                listeCapacite.append(capacite)
+                capacite = 0 + VOLUME_COLIS[i]
+                tab_colis[i] -= 1
+                i = 3
+            
+    listeCapacite.append(capacite)
+    return nb_camion
 
 tableau_colis = TableauColis(NB_COLIS)
-print(tableau_colis)
 k = NombreCamion(tableau_colis)
 
+#   MATRICE DES POIDS ########################################
 def matrice_poids(v, periode):
   arr = np.empty((v, v), dtype='int32')
   for i in range(0,v):
