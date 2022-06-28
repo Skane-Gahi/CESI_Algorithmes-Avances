@@ -212,54 +212,74 @@ def Main(v, matrice_poids):
     iter = 0
     bestScore = 9999999
     statIter = []
+    statsNbVilles = []
     while iter < MAX_ITER :
         statIter.append(iter)
 
         if population != []:
-            tmpList = []
+  
             for individual in population:
                 tmpBestScore = get_sum(individual, matrice_poids)
-                tmpList.append(tmpBestScore)
+        
                 if tmpBestScore < bestScore:
-                    bestScore = tmpBestScore
-            
-
+                    bestScore = tmpBestScore 
+            statsNbVilles.append(bestScore) 
         # print(population)   
         population = Loop(population, v, matrice_poids)
         iter += 1
 
-        if population != []:
-           
-            tmpList = []
-            for individual in population:
-                tmpBestScore = get_sum(individual, matrice_poids) 
-                tmpList.append(tmpBestScore)
-                if tmpBestScore < bestScore:
-                    bestScore = tmpBestScore
+    if population != []:
+        
+        for individual in population:
+            tmpBestScore = get_sum(individual, matrice_poids) 
+            
+            if tmpBestScore < bestScore:
+                bestScore = tmpBestScore
+        statsNbVilles.append(bestScore)    
 
-        print("Nombre de villes : ", str(v), " - Best Score : ", str(bestScore))
-        return [statIter, tmpList]
+    
+    print("Nombre de villes : ", str(v), " - Best Score : ", str(bestScore))
+    return [statIter, statsNbVilles]
 
 # STAT #########################################################
 
 def Stat():
     startIter = 50
-    endIter = 300
+    endIter = 301
     p = 50
     #   X
-    villeNbr = []
+    iterNbr = []
+    x = []
     #   Y
     fitness = []
+    tmpY = []
+    y = []
     
     for v in range(startIter, endIter, p):
         mat_poids = matrice_poids(v, MIDI)
         result = Main(v, mat_poids)
-        villeNbr.append(result[0])
+        iterNbr.append(result[0])
         fitness.append(result[1])
     
-    for i in range(len(fitness)):
-        plt.plot(villeNbr, fitness[i], label="Fitness en fonction du nombre de ville")
+    for i in range(0, len(iterNbr[0]), 11):
+        x.append(iterNbr[0][i])
+    
+    for j in range(len(fitness)):
+        tmpY = []
+        for i in range(0, len(fitness[j]), 11):
+            tmpY.append(fitness[j][i])
+        y.append(tmpY)
+    
+    # Visualizing the data with stacked bar chart
+    plt.figure(figsize=[15, 9]) 
+
+    for i in range(len(y)-1, -1, -1):
+        plt.bar(x, y[i], label=f'Fitness pour {(i+1)*50} villes', width=2)
+
     plt.legend()
+    plt.title('Fitness evolution according to the number of cities', fontsize=20)
+    plt.xlabel('iterations', fontsize=17)
+    plt.ylabel('Fitness score', fontsize=17)
     plt.show()
 
 Stat()
