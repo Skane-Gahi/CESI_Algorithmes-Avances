@@ -211,36 +211,41 @@ def Main(v, matrice_poids):
     population = []
     iter = 0
     bestScore = 9999999
+    statIter = []
     while iter < MAX_ITER :
+        statIter.append(iter)
 
         if population != []:
-            
+            tmpList = []
             for individual in population:
                 tmpBestScore = get_sum(individual, matrice_poids)
-             
+                tmpList.append(tmpBestScore)
                 if tmpBestScore < bestScore:
                     bestScore = tmpBestScore
-  
+            
+
+        # print(population)   
         population = Loop(population, v, matrice_poids)
         iter += 1
 
-    if population != []:
-     
-        for individual in population:
-            tmpBestScore = get_sum(individual, matrice_poids) 
+        if population != []:
            
-            if tmpBestScore < bestScore:
-                bestScore = tmpBestScore
+            tmpList = []
+            for individual in population:
+                tmpBestScore = get_sum(individual, matrice_poids) 
+                tmpList.append(tmpBestScore)
+                if tmpBestScore < bestScore:
+                    bestScore = tmpBestScore
 
         print("Nombre de villes : ", str(v), " - Best Score : ", str(bestScore))
-        return [iter, bestScore]
+        return [statIter, tmpList]
 
 # STAT #########################################################
 
 def Stat():
-    startIter = 10
-    endIter = 100
-    p = 10
+    startIter = 50
+    endIter = 300
+    p = 50
     #   X
     villeNbr = []
     #   Y
@@ -249,10 +254,11 @@ def Stat():
     for v in range(startIter, endIter, p):
         mat_poids = matrice_poids(v, MIDI)
         result = Main(v, mat_poids)
-        villeNbr.append(v)
+        villeNbr.append(result[0])
         fitness.append(result[1])
     
-    plt.plot(villeNbr, fitness, label="Fitness en fonction du nombre de ville")
+    for i in range(len(fitness)):
+        plt.plot(villeNbr, fitness[i], label="Fitness en fonction du nombre de ville")
     plt.legend()
     plt.show()
 

@@ -3,7 +3,7 @@ import random
 import matplotlib.pyplot as plt
 
 #   PARAMETERS ###############################################
-V = 50
+V = 100
 INDIVIDUAL = 8
 
 NB_COLIS = 50

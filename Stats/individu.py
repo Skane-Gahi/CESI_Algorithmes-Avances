@@ -3,7 +3,7 @@ import random
 import matplotlib.pyplot as plt
 
 #   PARAMETERS ###############################################
-V = 50
+V = 100
 MAX_ITER = 100
 NB_COLIS = 50
 
@@ -239,9 +239,9 @@ def Main(individu):
 # STAT #########################################################
 
 def Stat():
-    startIter = 6
-    endIter = 50
-    p = 4
+    startIter = 10
+    endIter = 100
+    p = 10
     #   X
     iterNbr = []
     #   Y
@@ -252,7 +252,7 @@ def Stat():
         iterNbr.append(i)
         fitness.append(result[1])
     
-    plt.plot(iterNbr, fitness, label="Fitness en fonction du nomre d'individu")
+    plt.plot(iterNbr, fitness, label="Fitness en fonction du nombre d'individu")
     plt.legend()
     plt.show()
 
