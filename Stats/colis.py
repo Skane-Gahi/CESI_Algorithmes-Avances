@@ -7,7 +7,7 @@ import random
 V = 150
 INDIVIDUAL = 8
 
-MAX_ITER = 1000
+MAX_ITER = 100
 
 #   TRAFFIC ##################################################
 MATIN = [1.7, 2.2]

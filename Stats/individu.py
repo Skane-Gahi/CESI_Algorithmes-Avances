@@ -240,7 +240,7 @@ def Main(individu):
 
 def Stat():
     startIter = 10
-    endIter = 100
+    endIter = 101
     p = 10
     #   X
     iterNbr = []
