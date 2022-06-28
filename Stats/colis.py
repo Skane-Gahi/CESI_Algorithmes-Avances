@@ -253,7 +253,7 @@ def statsColis():
         
         
     for i in range(len(colis)):
-        plt.plot(statsIters[i], statsColis[i], label=(f'{colis[i]} Package'))
+        plt.plot(statsIters[i], statsColis[i], label=(f'{colis[i]} Packages'))
 
     plt.legend()
     plt.show()
