@@ -36,5 +36,5 @@ if population != []:
     print("Best Score : ", str(bestScore))
     print(population[0])
     
-graph(population[0])
+# graph(population[0])
             
