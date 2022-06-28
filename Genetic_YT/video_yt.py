@@ -73,5 +73,6 @@ def NewPopulation(n_pop):
     pop.append(generate_individual())
     pop.append(generate_individual())
 
+
     return pop
 

@@ -1,13 +1,13 @@
 import numpy as np
 import random
-
+import matplotlib.pyplot as plt
 
 #   PARAMETERS ###############################################
 V = 50
 INDIVIDUAL = 8
 
-MAX_ITER = 100
 NB_COLIS = 50
+
 
 #   TRAFFIC ##################################################
 MATIN = [1.7, 2.2]
@@ -17,7 +17,7 @@ NUIT = [0.6, 1]
 
 # CALCUL DU NOMBRE DE CAMIONS ################################
 VOLUME_COLIS = [1, 3, 5, 8]
-CAPACITE_CAMION = 20
+CAPACITE_CAMION = 50
 
 def TableauColis(nb_colis):
   tableau = {}
@@ -70,7 +70,7 @@ def NombreCamion(tableau_colis):
 
 tableau_colis = TableauColis(NB_COLIS)
 k = NombreCamion(tableau_colis)
-print('Nombre camion : ', k)
+# print('Nombre camion : ', k)
 
 #   MATRICE DES POIDS ########################################
 def matrice_poids(v, periode):
@@ -206,15 +206,58 @@ def Loop(pop):
         
     return pop
 
-# print(MATRICE_POIDS)
-# pop = Population()
-# print(k)
-# print('Default : ', pop[0], '\n')
-# pop = Fitness(pop)
-# print('Fitness : ', pop, '\n')
-# pop = Crossover(pop)
-# print('Crossover : ', pop, '\n')
-# pop = Mutation(pop)
-# print('Mutation : ', pop, '\n')
-# pop = NewPopulation(pop)
-# print('New Gen : ', pop, '\n')
+
+#   MAIN ######################################################
+
+def Main(max_iter):
+    population = []
+    iter = 0
+    bestScore = 9999999
+    while iter < max_iter :
+
+        if population != []:
+            
+            for individual in population:
+                tmpBestScore = get_sum(individual)
+             
+                if tmpBestScore < bestScore:
+                    bestScore = tmpBestScore
+  
+        population = Loop(population)
+        iter += 1
+
+    if population != []:
+     
+        for individual in population:
+            tmpBestScore = get_sum(individual) 
+           
+            if tmpBestScore < bestScore:
+                bestScore = tmpBestScore
+
+        print("Iteration : ", str(iter), " - Best Score : ", str(bestScore))
+        return [iter, bestScore]
+
+# STAT #########################################################
+
+def Stat():
+    startIter = 10
+    endIter = 100
+    p = 10
+    #   X
+    iterNbr = []
+    #   Y
+    fitness = []
+    for i in range(startIter, endIter, p):
+        max_iter = i
+        result = Main(max_iter)
+        iterNbr.append(result[0])
+        fitness.append(result[1])
+    
+    plt.plot(iterNbr, fitness, label="Fitness en fonction du nomre d'itération")
+    plt.legend()
+    plt.show()
+
+
+Stat()
+# Reste à print le chart
+# Changer le liste.py avec la selection après la mutation et avant la regeneration aléatoire (fitness dans le new gen)
