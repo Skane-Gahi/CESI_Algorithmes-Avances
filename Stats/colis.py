@@ -1,4 +1,3 @@
-from graphVisu import *
 import numpy as np
 import matplotlib.pyplot as plt
 import random
@@ -236,7 +235,6 @@ def main(k):
                 bestScore = tmpBestScore
         statsNbColis.append(bestScore)
 
-    # graph(population[0])
     return [statsNbIters, statsNbColis]
      
 
