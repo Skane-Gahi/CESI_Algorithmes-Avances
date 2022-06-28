@@ -255,7 +255,7 @@ def Stat():
     fitness = []
     tmpY = []
     y = []
-    boxName = []
+    boxName = [0]
 
     for v in range(startIter, endIter, p):
         mat_poids = matrice_poids(v, MIDI)
