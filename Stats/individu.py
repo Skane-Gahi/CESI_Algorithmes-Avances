@@ -233,7 +233,7 @@ def Main(individu):
             if tmpBestScore < bestScore:
                 bestScore = tmpBestScore
 
-        print("Nombre d'individu : ", str(individu), " - Best Score : ", str(bestScore))
+        # print("Nombre d'individu : ", str(individu), " - Best Score : ", str(bestScore))
         return [iter, bestScore]
 
 # STAT #########################################################
@@ -246,6 +246,9 @@ def Stat():
     iterNbr = []
     #   Y
     fitness = []
+
+    plt.figure(figsize=[15, 9]) 
+
     for i in range(startIter, endIter, p):
        
         result = Main(i)
@@ -254,7 +257,10 @@ def Stat():
     
     plt.plot(iterNbr, fitness, label="Fitness en fonction du nombre d'individu")
     plt.legend()
-    plt.show()
+    plt.title('Fitness evolution according to the number of individuals', fontsize=20)
+    plt.xlabel('iterations', fontsize=17)
+    plt.ylabel('Fitness score', fontsize=17)
+    # plt.show()
 
 
 Stat()

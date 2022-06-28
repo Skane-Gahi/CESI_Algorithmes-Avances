@@ -238,7 +238,7 @@ def Main(v, matrice_poids):
         statsNbVilles.append(bestScore)    
 
     
-    print("Nombre de villes : ", str(v), " - Best Score : ", str(bestScore))
+    # print("Nombre de villes : ", str(v), " - Best Score : ", str(bestScore))
     return [statIter, statsNbVilles]
 
 # STAT #########################################################
@@ -280,6 +280,6 @@ def Stat():
     plt.title('Fitness evolution according to the number of cities', fontsize=20)
     plt.xlabel('iterations', fontsize=17)
     plt.ylabel('Fitness score', fontsize=17)
-    plt.show()
+    # plt.show()
 
 Stat()
