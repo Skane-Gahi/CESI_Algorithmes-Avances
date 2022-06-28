@@ -1,13 +1,13 @@
 import numpy as np
+import matplotlib.pyplot as plt
 import random
 
 
 #   PARAMETERS ###############################################
-V = 50
+V = 150
 INDIVIDUAL = 8
 
-MAX_ITER = 100
-NB_COLIS = 50
+MAX_ITER = 1000
 
 #   TRAFFIC ##################################################
 MATIN = [1.7, 2.2]
@@ -17,7 +17,7 @@ NUIT = [0.6, 1]
 
 # CALCUL DU NOMBRE DE CAMIONS ################################
 VOLUME_COLIS = [1, 3, 5, 8]
-CAPACITE_CAMION = 20
+CAPACITE_CAMION = 50
 
 def TableauColis(nb_colis):
   tableau = {}
@@ -68,10 +68,6 @@ def NombreCamion(tableau_colis):
     # print(listeCapacite)
     return nb_camion
 
-tableau_colis = TableauColis(NB_COLIS)
-k = NombreCamion(tableau_colis)
-print('Nombre camion : ', k)
-
 #   MATRICE DES POIDS ########################################
 def matrice_poids(v, periode):
   arr = np.empty((v, v), dtype='int32')
@@ -87,7 +83,7 @@ def matrice_poids(v, periode):
 MATRICE_POIDS = matrice_poids(V, MIDI)
 
 # Generation #################################################
-def Population():
+def Population(k):
     pop = []
     for _ in range(0, INDIVIDUAL):
         # randomList = [0]
@@ -99,7 +95,7 @@ def Population():
     return pop
 
 #   Only for new gen ########################################
-def individu():
+def individu(k):
     
     # randomList = [0]
     randomList = random.sample(range(1, V), V-1)
@@ -131,7 +127,6 @@ def get_sum(path):
 def Fitness(pop):
     pop.sort(key=get_sum, reverse=False)
     return pop
-
 
 #   Crossover ###############################################
 def sub_crossover(i1, i2):
@@ -166,7 +161,6 @@ def Crossover(pop):
        
     return n_pop
 
-
 #   Mutation ################################################
 def Mutation(pop):
     n = 0
@@ -182,39 +176,92 @@ def Mutation(pop):
     return pop
 
 #   NEW_POPULATION ############################################
-def NewPopulation(pop):
+def NewPopulation(pop, k):
     pop = Fitness(pop)
     n_pop = []
     for i in range(len(pop)):
         if i < (len(pop)/2):
             n_pop.append(pop[i])
         else:
-            n_pop.append(individu())
+            n_pop.append(individu(k))
 
     return n_pop
 
 
 # Loop ########################################################
-def Loop(pop):
+def Loop(pop, k):
     if pop == []:
-        pop = Population()
-    
+        pop = Population(k)
     pop = Fitness(pop)
     pop = Crossover(pop)
     pop = Mutation(pop)
-    pop = NewPopulation(pop)
+    pop = NewPopulation(pop, k)
         
     return pop
 
-# print(MATRICE_POIDS)
-# pop = Population()
-# print(k)
-# print('Default : ', pop[0], '\n')
-# pop = Fitness(pop)
-# print('Fitness : ', pop, '\n')
-# pop = Crossover(pop)
-# print('Crossover : ', pop, '\n')
-# pop = Mutation(pop)
-# print('Mutation : ', pop, '\n')
-# pop = NewPopulation(pop)
-# print('New Gen : ', pop, '\n')
+
+
+def main(k):
+    #   MAIN #############################################################
+    population = []
+    iter = 0
+    bestScore = 9999999
+
+    statsNbIters = []
+    statsNbColis = []
+
+    while iter < MAX_ITER :
+        statsNbIters.append(iter)
+
+        if population != []:
+            tmpList = []
+            for individual in population:
+                tmpBestScore = get_sum(individual)
+                tmpList.append(tmpBestScore)
+                if tmpBestScore < bestScore:
+                    bestScore = tmpBestScore
+            statsNbColis.append(bestScore)
+
+        # print(population)   
+        population = Loop(population,k)
+        iter += 1
+
+    if population != []:
+        tmpList = []
+        for individual in population:
+            tmpBestScore = get_sum(individual) 
+            tmpList.append(tmpBestScore)
+            if tmpBestScore < bestScore:
+                bestScore = tmpBestScore
+        statsNbColis.append(bestScore)
+
+    return [statsNbIters, statsNbColis]
+     
+
+def statsColis():
+    colis = [25,50,100,500]
+    
+    statsIters = []
+    statsColis = []
+    
+    for coli in colis:
+        tableau_colis = TableauColis(coli)
+        k = NombreCamion(tableau_colis)
+        result = main(k)
+        statsIters.append(result[0])
+        statsColis.append(result[1])
+        
+        
+    for i in range(len(colis)):
+        plt.plot(statsIters[i], statsColis[i], label=(f'{colis[i]} Colis'))
+
+    plt.legend()
+    plt.show()
+
+statsColis()
+
+
+
+
+
+

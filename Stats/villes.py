@@ -1,11 +1,11 @@
+from functools import partial
 import numpy as np
 import random
-
+import matplotlib.pyplot as plt
 
 #   PARAMETERS ###############################################
-V = 50
-INDIVIDUAL = 8
 
+INDIVIDUAL = 8
 MAX_ITER = 100
 NB_COLIS = 50
 
@@ -17,7 +17,7 @@ NUIT = [0.6, 1]
 
 # CALCUL DU NOMBRE DE CAMIONS ################################
 VOLUME_COLIS = [1, 3, 5, 8]
-CAPACITE_CAMION = 20
+CAPACITE_CAMION = 50
 
 def TableauColis(nb_colis):
   tableau = {}
@@ -70,7 +70,7 @@ def NombreCamion(tableau_colis):
 
 tableau_colis = TableauColis(NB_COLIS)
 k = NombreCamion(tableau_colis)
-print('Nombre camion : ', k)
+# print('Nombre camion : ', k)
 
 #   MATRICE DES POIDS ########################################
 def matrice_poids(v, periode):
@@ -84,32 +84,31 @@ def matrice_poids(v, periode):
   
   return arr
 
-MATRICE_POIDS = matrice_poids(V, MIDI)
 
 # Generation #################################################
-def Population():
+def Population(v):
     pop = []
     for _ in range(0, INDIVIDUAL):
         # randomList = [0]
-        randomList = random.sample(range(1, V), V-1)
+        randomList = random.sample(range(1, v), v-1)
         # randomList.extend([0])
-        truckIdx = random.sample(range(1, V-1), k-1)
+        truckIdx = random.sample(range(1, v-1), k-1)
         pop.append([randomList, truckIdx])
         
     return pop
 
 #   Only for new gen ########################################
-def individu():
+def individu(v):
     
     # randomList = [0]
-    randomList = random.sample(range(1, V), V-1)
+    randomList = random.sample(range(1, v), v-1)
     # randomList.extend([0])
-    truckIdx = random.sample(range(1, V-1), k-1)
+    truckIdx = random.sample(range(1, v-1), k-1)
 
     return [randomList, truckIdx]
 
 #   Fitness #################################################
-def get_sum(path):
+def get_sum(path, mat_poids):
     totalSum = 0
     element0 = path[0].copy()
     element1 = path[1].copy()
@@ -124,12 +123,12 @@ def get_sum(path):
     element0.insert(0, 0)
 
     for i in range(len(element0)-1):
-        totalSum += MATRICE_POIDS[element0[i]][element0[i+1]]
+        totalSum += mat_poids[element0[i]][element0[i+1]]
    
     return totalSum
 
-def Fitness(pop):
-    pop.sort(key=get_sum, reverse=False)
+def Fitness(pop, mat_poids):
+    pop = sorted(pop, key=partial(get_sum, mat_poids=mat_poids))
     return pop
 
 
@@ -182,39 +181,85 @@ def Mutation(pop):
     return pop
 
 #   NEW_POPULATION ############################################
-def NewPopulation(pop):
-    pop = Fitness(pop)
+def NewPopulation(pop, v):
     n_pop = []
     for i in range(len(pop)):
         if i < (len(pop)/2):
             n_pop.append(pop[i])
         else:
-            n_pop.append(individu())
+            n_pop.append(individu(v))
 
     return n_pop
 
 
 # Loop ########################################################
-def Loop(pop):
+def Loop(pop, v, mat_poids):
     if pop == []:
-        pop = Population()
+        pop = Population(v)
     
-    pop = Fitness(pop)
+    pop = Fitness(pop, mat_poids)
     pop = Crossover(pop)
     pop = Mutation(pop)
-    pop = NewPopulation(pop)
+    pop = NewPopulation(pop, v)
         
     return pop
 
-# print(MATRICE_POIDS)
-# pop = Population()
-# print(k)
-# print('Default : ', pop[0], '\n')
-# pop = Fitness(pop)
-# print('Fitness : ', pop, '\n')
-# pop = Crossover(pop)
-# print('Crossover : ', pop, '\n')
-# pop = Mutation(pop)
-# print('Mutation : ', pop, '\n')
-# pop = NewPopulation(pop)
-# print('New Gen : ', pop, '\n')
+
+#   MAIN ######################################################
+
+def Main(v, matrice_poids):
+    population = []
+    iter = 0
+    bestScore = 9999999
+    statIter = []
+    while iter < MAX_ITER :
+        statIter.append(iter)
+
+        if population != []:
+            tmpList = []
+            for individual in population:
+                tmpBestScore = get_sum(individual, matrice_poids)
+                tmpList.append(tmpBestScore)
+                if tmpBestScore < bestScore:
+                    bestScore = tmpBestScore
+            
+
+        # print(population)   
+        population = Loop(population, v, matrice_poids)
+        iter += 1
+
+        if population != []:
+           
+            tmpList = []
+            for individual in population:
+                tmpBestScore = get_sum(individual, matrice_poids) 
+                tmpList.append(tmpBestScore)
+                if tmpBestScore < bestScore:
+                    bestScore = tmpBestScore
+
+        print("Nombre de villes : ", str(v), " - Best Score : ", str(bestScore))
+        return [statIter, tmpList]
+
+# STAT #########################################################
+
+def Stat():
+    startIter = 50
+    endIter = 300
+    p = 50
+    #   X
+    villeNbr = []
+    #   Y
+    fitness = []
+    
+    for v in range(startIter, endIter, p):
+        mat_poids = matrice_poids(v, MIDI)
+        result = Main(v, mat_poids)
+        villeNbr.append(result[0])
+        fitness.append(result[1])
+    
+    for i in range(len(fitness)):
+        plt.plot(villeNbr, fitness[i], label="Fitness en fonction du nombre de ville")
+    plt.legend()
+    plt.show()
+
+Stat()
