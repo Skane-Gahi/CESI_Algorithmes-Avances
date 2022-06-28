@@ -7,7 +7,7 @@ V = 50
 INDIVIDUAL = 8
 
 MAX_ITER = 100
-NB_COLIS = 100
+NB_COLIS = 50
 
 #   TRAFFIC ##################################################
 MATIN = [1.7, 2.2]
@@ -93,7 +93,7 @@ def Population():
         # randomList = [0]
         randomList = random.sample(range(1, V), V-1)
         # randomList.extend([0])
-        truckIdx = random.sample(range(1, V-1), k)
+        truckIdx = random.sample(range(1, V-1), k-1)
         pop.append([randomList, truckIdx])
         
     return pop
@@ -104,7 +104,7 @@ def individu():
     # randomList = [0]
     randomList = random.sample(range(1, V), V-1)
     # randomList.extend([0])
-    truckIdx = random.sample(range(1, V-1), k)
+    truckIdx = random.sample(range(1, V-1), k-1)
 
     return [randomList, truckIdx]
 

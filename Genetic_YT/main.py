@@ -1,10 +1,10 @@
 from liste import *
+from graphVisu import *
 
 #   MAIN #############################################################
 population = []
 iter = 0
 bestScore = 9999999
-
 
 while iter < MAX_ITER :
     print('ITERATION : ', str(iter))
@@ -35,4 +35,6 @@ if population != []:
     print(tmpList)
     print("Best Score : ", str(bestScore))
     print(population[0])
+    
+graph(population[0])
             
