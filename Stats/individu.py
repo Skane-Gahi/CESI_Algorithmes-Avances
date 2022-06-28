@@ -239,9 +239,9 @@ def Main(individu):
 # STAT #########################################################
 
 def Stat():
-    startIter = 10
-    endIter = 101
-    p = 10
+    startIter = 50
+    endIter = 1001
+    p = 50
     #   X
     iterNbr = []
     #   Y
@@ -258,7 +258,7 @@ def Stat():
     plt.plot(iterNbr, fitness, label="Fitness en fonction du nombre d'individu")
     plt.legend()
     plt.title('Fitness evolution according to the number of individuals', fontsize=20)
-    plt.xlabel('iterations', fontsize=17)
+    plt.xlabel('Individuals', fontsize=17)
     plt.ylabel('Fitness score', fontsize=17)
     # plt.show()
 
