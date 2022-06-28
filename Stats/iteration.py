@@ -234,19 +234,22 @@ def Main(max_iter):
             if tmpBestScore < bestScore:
                 bestScore = tmpBestScore
 
-        print("Iteration : ", str(iter), " - Best Score : ", str(bestScore))
+        # print("Iteration : ", str(iter), " - Best Score : ", str(bestScore))
         return [iter, bestScore]
 
 # STAT #########################################################
 
 def Stat():
-    startIter = 10
-    endIter = 101
-    p = 10
+    startIter = 50
+    endIter = 1001
+    p = 50
     #   X
     iterNbr = []
     #   Y
     fitness = []
+
+    plt.figure(figsize=[15, 9])  
+
     for i in range(startIter, endIter, p):
         max_iter = i
         result = Main(max_iter)
@@ -255,7 +258,10 @@ def Stat():
     
     plt.plot(iterNbr, fitness, label="Fitness en fonction du nomre d'itération")
     plt.legend()
-    plt.show()
+    plt.title('Fitness evolution according to the number of generations', fontsize=20)
+    plt.xlabel('iterations', fontsize=17)
+    plt.ylabel('Fitness score', fontsize=17)
+    # plt.show()
 
 
 Stat()
