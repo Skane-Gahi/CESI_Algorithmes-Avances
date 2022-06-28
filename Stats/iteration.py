@@ -240,9 +240,9 @@ def Main(max_iter):
 # STAT #########################################################
 
 def Stat():
-    startIter = 10
-    endIter = 101
-    p = 10
+    startIter = 50
+    endIter = 1001
+    p = 50
     #   X
     iterNbr = []
     #   Y

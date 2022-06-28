@@ -2,6 +2,7 @@ from functools import partial
 import numpy as np
 import random
 import matplotlib.pyplot as plt
+import pylab
 
 #   PARAMETERS ###############################################
 
@@ -254,12 +255,14 @@ def Stat():
     fitness = []
     tmpY = []
     y = []
-    
+    boxName = []
+
     for v in range(startIter, endIter, p):
         mat_poids = matrice_poids(v, MIDI)
         result = Main(v, mat_poids)
         iterNbr.append(result[0])
         fitness.append(result[1])
+        boxName.append(int(v))
     
     for i in range(0, len(iterNbr[0]), 11):
         x.append(iterNbr[0][i])
@@ -270,15 +273,18 @@ def Stat():
             tmpY.append(fitness[j][i])
         y.append(tmpY)
     
+    
     # Visualizing the data with stacked bar chart
     plt.figure(figsize=[15, 9]) 
 
-    for i in range(len(y)-1, -1, -1):
-        plt.bar(x, y[i], label=f'Fitness pour {(i+1)*50} villes', width=2)
+    plt.boxplot(y)
+    
+    plt.ylim(y[0][0]*0.25,int(y[-1][-1])*1.25)
+    pylab.xticks([i for i in range(len(boxName))], boxName)
 
     plt.legend()
     plt.title('Fitness evolution according to the number of cities', fontsize=20)
-    plt.xlabel('iterations', fontsize=17)
+    plt.xlabel('Number of cities', fontsize=17)
     plt.ylabel('Fitness score', fontsize=17)
     # plt.show()
 
