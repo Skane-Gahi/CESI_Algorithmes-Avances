@@ -251,12 +251,16 @@ def statsColis():
         statsIters.append(result[0])
         statsColis.append(result[1])
         
-        
+    plt.figure(figsize=[15, 9])  
+     
     for i in range(len(colis)):
-        plt.plot(statsIters[i], statsColis[i], label=(f'{colis[i]} Package'))
+        plt.plot(statsIters[i], statsColis[i], label=(f'{colis[i]} Packages'))
 
     plt.legend()
-    plt.show()
+    plt.title('Fitness evolution according to the number of packages', fontsize=20)
+    plt.xlabel('iterations', fontsize=17)
+    plt.ylabel('Fitness score', fontsize=17)
+    # plt.show()
 
 statsColis()
 
